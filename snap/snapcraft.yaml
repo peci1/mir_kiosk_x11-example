@@ -1,7 +1,8 @@
-name: mir-kiosk-x11-example     # YOUR SNAP NAME GOES HERE
-version: '0.1'                  # YOUR SNAP VERSION GOES HERE
-summary: example X11 kiosk      # YOUR SUMMARY GOES HERE
-description: example X11 kiosk  # YOUR DESCRIPTION GOES HERE
+name: mir-kiosk-x11-example
+version: '0.1'
+summary: example (glxgears) X11 kiosk, using mir_kiosk_x11
+description: |
+  example (glxgears) X11 kiosk, using mir_kiosk_x11
 base: core20
 confinement: strict
 grade: devel
@@ -12,7 +13,7 @@ apps:
 #    restart-condition: always
     command-chain:
       - env-setup
-    command: usr/local/bin/x11_kiosk_launch ### YOUR COMMAND GOES HERE
+    command: usr/local/bin/x11_kiosk_launch glxgears
 
 architectures:
   - build-on: amd64
@@ -20,13 +21,13 @@ architectures:
   - build-on: armhf
 
 parts:
-  ### YOUR PART GOES HERE
-  your-part:
+  glxgears:
     plugin: nil
+    stage-packages:
+      - mesa-utils
     stage-snaps:
       - mir-kiosk-x11/latest/edge
 
-# Needed by Mir and/or Xwayland
 layout:
   /usr/share/X11:
     bind: $SNAP/usr/share/X11
