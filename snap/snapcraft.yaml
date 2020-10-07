@@ -1,8 +1,7 @@
-name: mir-kiosk-x11-example
-version: '0.1'
-summary: example (zoom) X11 kiosk, using mir_kiosk_x11
-description: |
-  example (zoom) X11 kiosk, using mir_kiosk_x11
+name: mir-kiosk-x11-example     # YOUR SNAP NAME GOES HERE
+version: '0.1'                  # YOUR SNAP VERSION GOES HERE
+summary: example X11 kiosk      # YOUR SUMMARY GOES HERE
+description: example X11 kiosk  # YOUR DESCRIPTION GOES HERE
 base: core20
 confinement: strict
 grade: devel
@@ -13,67 +12,20 @@ apps:
 #    restart-condition: always
     command-chain:
       - env-setup
-    command: usr/local/bin/x11_kiosk_launch $SNAP/usr/bin/zoom
+    command: usr/local/bin/x11_kiosk_launch ### YOUR COMMAND GOES HERE
 
 architectures:
   - build-on: amd64
+  - build-on: arm64
+  - build-on: armhf
 
 parts:
-  zoom:
-    plugin: dump
-    source: https://zoom.us/client/latest/zoom_amd64.deb
-    override-build: |
-      rm -f $SNAPCRAFT_PART_BUILD/usr/bin/zoom
-      echo "QT_QPA_PLATFORM=xcb LD_LIBRARY_PATH=\$SNAP/opt/zoom:\$LD_LIBRARY_PATH \$SNAP/opt/zoom/ZoomLauncher" > $SNAPCRAFT_PART_BUILD/usr/bin/zoom
-      chmod +x $SNAPCRAFT_PART_BUILD/usr/bin/zoom
-      sed -i s/D_LIBRAR/XXXXXXXX/g opt/zoom/ZoomLauncher
-      snapcraftctl build
-    stage-packages:
-      - libnspr4
-      - libnss3
-      - libpulse-mainloop-glib0
-      - libqt53dcore5
-      - libqt53dinput5
-      - libqt53dlogic5
-      - libqt53dquick5
-      - libqt53dquickscene2d5
-      - libqt53drender5
-      - libqt5concurrent5
-      - libqt5core5a
-      - libqt5dbus5
-      - libqt5gui5
-      - libqt5multimedia5
-      - libqt5multimedia5-plugins
-      - libqt5network5
-      - libqt5printsupport5
-      - libqt5qml5
-      - libqt5quick5
-      - libqt5quickcontrols2-5
-      - libqt5quickparticles5
-      - libqt5quicktemplates2-5
-      - libqt5sql5
-      - libqt5waylandclient5
-      - libqt5widgets5
-      - libqt5xmlpatterns5
-      - libxcb-image0
-      - libxcb-keysyms1
-      - libxcb-randr0
-      - libxcb-xtest0
-      - libx11-6
-      - libxtst6
-      - pulseaudio-utils
-      - libqt5gamepad5
-      - libxi6
-      - libatk1.0-0
-      - libcairo-gobject2
-      - libcairo2
-      - libgtk-3-0
-      - libgdk-pixbuf2.0-0
-      - libpango-1.0-0
-      - libpangocairo-1.0-0
-      - libpulse0
+  ### YOUR PART GOES HERE
+  your-part:
+    plugin: nil
     stage-snaps: [mir-kiosk-x11]
 
+# Needed by Mir and/or Xwayland
 layout:
   /usr/share/X11:
     bind: $SNAP/usr/share/X11
@@ -90,6 +42,3 @@ plugs:
   opengl:         # For Mir
   wayland:        # For Mir
   network-bind:   # For Mir (to serve X11)
-  camera:         # For Zoom
-  audio-playback: # For Zoom
-  audio-record:   # For Zoom
