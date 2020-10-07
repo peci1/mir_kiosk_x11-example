@@ -16,7 +16,7 @@ apps:
     command: usr/local/bin/x11_kiosk_launch $SNAP/usr/bin/zoom
 
 architectures:
-  - amd64
+  - build-on: amd64
 
 parts:
   zoom:
@@ -72,37 +72,7 @@ parts:
       - libpango-1.0-0
       - libpangocairo-1.0-0
       - libpulse0
-
-  # The rest is "boiler plate" to set up an X11 environment for the application
-  ppa-setup:
-    plugin: nil
-    override-pull: |
-      sudo apt --assume-yes install software-properties-common
-      sudo add-apt-repository -y ppa:mir-team/release
-      sudo apt install --assume-yes libmiral-dev
-      snapcraftctl pull
-
-  mir-kiosk-x11:
-    after: [ppa-setup]
-    plugin: cmake
-    source: https://github.com/MirServer/mir_kiosk_x11.git
-    build-packages:
-      - pkg-config
-      - libmiral-dev
-      - make
-      - g++
-    stage-packages:
-      - inotify-tools
-      - libmiral4
-      - mir-platform-graphics-wayland18
-      - dmz-cursor-theme
-      - fonts-freefont-ttf
-      - xwayland
-      - libbz2-1.0
-
-  env-setup:
-    plugin: dump
-    source: env-setup
+    stage-snaps: [mir-kiosk-x11]
 
 layout:
   /usr/share/X11:
@@ -123,12 +93,3 @@ plugs:
   camera:         # For Zoom
   audio-playback: # For Zoom
   audio-record:   # For Zoom
-
-environment:
-  # Prep for Mir
-  MIR_SERVER_PLATFORM_PATH: ${SNAP}/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/mir/server-platform
-  MIR_SERVER_XWAYLAND_PATH: ${SNAP}/usr/bin/Xwayland
-  # GL setup
-  __EGL_VENDOR_LIBRARY_DIRS: $SNAP/etc/glvnd/egl_vendor.d:$SNAP/usr/share/glvnd/egl_vendor.d
-  LIBGL_DRIVERS_PATH: $SNAP/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/dri
-  LD_LIBRARY_PATH: ${SNAP}/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}:${SNAP}/lib/${SNAPCRAFT_ARCH_TRIPLET}
