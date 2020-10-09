@@ -1,0 +1,20 @@
+#!/bin/sh
+set -x
+
+if ! snapctl is-connected wayland
+then
+  echo "Wayland interface not connected!"
+  exit 1
+fi
+
+real_wayland=$(dirname "${XDG_RUNTIME_DIR}")/${WAYLAND_DISPLAY:-wayland-0}
+
+while [ ! -O "${real_wayland}" ]
+do
+  inotifywait --event create $(dirname "${real_wayland}")
+done
+
+mkdir -p ${XDG_RUNTIME_DIR}
+ln -sf "${real_wayland}" "${XDG_RUNTIME_DIR}"
+export MIR_SERVER_WAYLAND_HOST=${WAYLAND_DISPLAY:-wayland-0}
+unset WAYLAND_DISPLAY

@@ -2,7 +2,7 @@ name: mir-kiosk-x11-example     # YOUR SNAP NAME GOES HERE
 version: '0.1'                  # YOUR SNAP VERSION GOES HERE
 summary: example X11 kiosk      # YOUR SUMMARY GOES HERE
 description: example X11 kiosk  # YOUR DESCRIPTION GOES HERE
-base: core20
+base: core18
 confinement: strict
 grade: devel
 
@@ -12,7 +12,16 @@ apps:
 #    restart-condition: always
     command-chain:
       - env-setup
-    command: usr/local/bin/x11_kiosk_launch ### YOUR COMMAND GOES HERE
+    command: bin/x11_kiosk_launch $SNAP/electron-quick-start/electron-quick-start --no-sandbox
+    extensions: [gnome-3-34]
+    plugs:
+      - browser-support
+      - network
+      - network-bind
+    # Correct the TMPDIR path for Chromium Framework/Electron to ensure
+    # libappindicator has readable resources.
+    environment:
+      TMPDIR: $XDG_RUNTIME_DIR
 
 architectures:
   - build-on: amd64
@@ -20,10 +29,81 @@ architectures:
   - build-on: armhf
 
 parts:
-  ### YOUR PART GOES HERE
-  your-part:
+  electron-quick-start:
     plugin: nil
-    stage-snaps: [mir-kiosk-x11]
+    source: https://github.com/electron/electron-quick-start.git
+    override-build: |
+      unset SUDO_UID
+      unset SUDO_GID
+      npm config set scripts-prepend-node-path true
+      npm install electron electron-packager
+      npx electron-packager . --overwrite --platform=linux --output=release-build --prune=true
+      cp -rv ./electron-quick-start-linux-* $SNAPCRAFT_PART_INSTALL/electron-quick-start
+    build-snaps:
+      - node/14/stable
+    build-packages:
+      - unzip
+      - libc6-dev
+    stage-packages:
+      - libnss3
+      - libnspr4
+
+#  other-stuff-we-might-need:
+#    plugin: nil
+#    stage-packages:
+#      - libsystemd0
+#      - libc6
+#      - libpcre3
+#      - zlib1g
+#      - libselinux1
+#      - libmount1
+#      - libblkid1
+#      - libuuid1
+#      - liblzma5
+#      - liblz4-1
+#      - libgpg-error0
+
+# We need a core18 version of mir-kiosk-x11, for now just build it in place
+#  mir-kiosk-x11:
+#    plugin: nil
+#    stage-snaps: [mir-kiosk-x11/edge/core18]
+  ppa-setup:
+    plugin: nil
+    override-pull: |
+      sudo apt --assume-yes install software-properties-common
+      sudo add-apt-repository -y ppa:mir-team/release
+      sudo apt install --assume-yes libmiral-dev
+      snapcraftctl pull
+
+  mir-kiosk-x11:
+    after: [ppa-setup]
+    plugin: cmake
+    source: https://github.com/MirServer/mir_kiosk_x11.git
+    override-pull: |
+      snapcraftctl pull
+      server_version=`git rev-list --count HEAD`
+      mir_version=`LANG=C apt-cache policy mir-platform-graphics-wayland18 | sed -rne 's/^\s+Candidate:\s+([^-]*)-.+$/\1/p'`
+      snapcraftctl set-version $server_version-mir$mir_version
+    build-packages:
+      - pkg-config
+      - libmiral-dev
+      - make
+      - g++
+    stage-packages:
+      - inotify-tools
+      - libmiral4
+      - mir-platform-graphics-wayland18
+      - dmz-cursor-theme
+      - fonts-freefont-ttf
+      - xwayland
+      - libbz2-1.0
+
+  env-setup:
+    plugin: dump
+    source: env-setup
+    override-build: |
+      snapcraftctl build
+      sed s/\$\{SNAPCRAFT_ARCH_TRIPLET}/${SNAPCRAFT_ARCH_TRIPLET}/g --in-place $SNAPCRAFT_PART_INSTALL/hacks/*
 
 # Needed by Mir and/or Xwayland
 layout:
