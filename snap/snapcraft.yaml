@@ -17,11 +17,11 @@ apps:
     plugs:
       - browser-support
       - network
-      - network-bind
     # Correct the TMPDIR path for Chromium Framework/Electron to ensure
     # libappindicator has readable resources.
     environment:
       TMPDIR: $XDG_RUNTIME_DIR
+      DISABLE_WAYLAND: "1"
 
 architectures:
   - build-on: amd64
@@ -48,25 +48,11 @@ parts:
       - libnss3
       - libnspr4
 
-#  other-stuff-we-might-need:
-#    plugin: nil
-#    stage-packages:
-#      - libsystemd0
-#      - libc6
-#      - libpcre3
-#      - zlib1g
-#      - libselinux1
-#      - libmount1
-#      - libblkid1
-#      - libuuid1
-#      - liblzma5
-#      - liblz4-1
-#      - libgpg-error0
-
 # We need a core18 version of mir-kiosk-x11, for now just build it in place
 #  mir-kiosk-x11:
 #    plugin: nil
 #    stage-snaps: [mir-kiosk-x11/edge/core18]
+
   ppa-setup:
     plugin: nil
     override-pull: |
@@ -97,6 +83,19 @@ parts:
       - fonts-freefont-ttf
       - xwayland
       - libbz2-1.0
+    prime:
+      # Avoid runtime errors with the gnome-3-34 extension
+      - -usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/glib-2.0
+      - -usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/libgio-2.0.so.0
+      - -usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/libgio-2.0.so.0.5600.4
+      - -usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/libglib-2.0.so.0
+      - -usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/libglib-2.0.so.0.5600.4
+      - -usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/libgmodule-2.0.so.0
+      - -usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/libgmodule-2.0.so.0.5600.4
+      - -usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/libgobject-2.0.so.0
+      - -usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/libgobject-2.0.so.0.5600.4
+      - -usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/libgthread-2.0.so.0
+      - -usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/libgthread-2.0.so.0.5600.4
 
   env-setup:
     plugin: dump
