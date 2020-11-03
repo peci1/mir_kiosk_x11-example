@@ -1,8 +1,8 @@
 name: mir-kiosk-x11-example
 version: '0.1'
-summary: example (glxgears) X11 kiosk, using mir_kiosk_x11
+summary: example (glxgears) X11 kiosk, using mir-kiosk-x11
 description: |
-  example (glxgears) X11 kiosk, using mir_kiosk_x11
+  example (glxgears) X11 kiosk, using mir-kiosk-x11
 base: core20
 confinement: strict
 grade: devel
