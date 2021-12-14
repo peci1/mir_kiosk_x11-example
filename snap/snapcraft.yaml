@@ -8,11 +8,11 @@ grade: devel
 
 apps:
   mir-kiosk-x11-example:
-#    daemon: simple
-#    restart-condition: always
+    daemon: simple
+    restart-condition: always
     command-chain:
       - env-setup
-    command: usr/local/bin/x11_kiosk_launch ### YOUR COMMAND GOES HERE
+    command: usr/local/bin/x11_kiosk_launch bash $SNAP/bin/run_x_server.sh #bash -c "xhost +si:localuser:robot; sleep 100000000"
 
 architectures:
   - build-on: amd64
@@ -21,9 +21,17 @@ architectures:
 
 parts:
   ### YOUR PART GOES HERE
-  your-part:
+  glxgears:
     plugin: nil
+    stage-packages:
+      - mesa-utils
+      - x11-xserver-utils
     stage-snaps: [mir-kiosk-x11]
+  wrapper:
+    source: .
+    plugin: dump
+    organize:
+      run_x_server.sh: bin/run_x_server.sh
 
 # Needed by Mir and/or Xwayland
 layout:
